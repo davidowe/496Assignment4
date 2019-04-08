@@ -71,6 +71,7 @@ class GomokuSimulationPlayer(object):
             res=game_result(board)
         for m in simulation_moves[::-1]:
             undo(board, m)
+        print("RES", res)
         if res == color_to_play:
             return 1.0
         elif res == 'draw':

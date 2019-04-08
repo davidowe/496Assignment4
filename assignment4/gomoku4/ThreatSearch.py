@@ -5,7 +5,7 @@ def opponent(player):
     else:
         return 1
 
-class TSearch(object):
+class TSearch:
     #initializes the dictionaries containing threat patterns
     def __init__(self, player):
         #Each threat is a list containing either the player, 0, or the opponent as it's elements.
@@ -312,5 +312,7 @@ class TSearch(object):
                 non_none(c, self.start_threat_sequence(board, 1, i, j, -1, 1))
 
         if len(c) > 0:
-            return c[0]
+            return board.pt(c[0][0], c[0][1])
         return None
+
+    def

@@ -15,6 +15,9 @@ import re
 import signal
 from ThreatSearch import TSearch
 import MCTS
+import SimulationPlayer
+import alphabeta
+import threading
 
 class GtpConnection():
 
@@ -459,9 +462,57 @@ class GtpConnection():
         # if self.search == True:
         #     print("Failed")
 
-        self.search.update_tree(self.board, 1)
-        print(self.search.scores)
-        self.search.make_move(self.board, 1)
+        # self.search.update_tree(self.board, 1)
+        # for x in self.search.scores:
+        #     score = self.search.scores[x]
+        #     if score[0] > 10:
+        #         print(score)
+        # self.search.print_tree(self.board, 1)
+        # self.search.make_move(self.board, 1)
+
+        # sim = SimulationPlayer.GomokuSimulationPlayer()
+        # maxMove = None
+        # maxScore = -1
+        # for move in self.board.get_empty_points():
+        #     won = 0
+        #     self.board.board[move] = 1
+        #     for i in range(50):
+        #         if sim._do_playout(self.board, 1) == 1:
+        #             won += 1
+        #     print('\n' + self.board2d())
+        #     print(won)
+        #     self.board.board[move] = 0
+        #     if won > maxScore:
+        #         maxScore = won
+        #         maxMove = move
+        # self.board.board[maxMove] = 1
+
+        # search = MCTS.NEW_MCTS(self.board, 1)
+        # for i in range(1000):
+        #     print(i)
+        #     search.update_tree()
+        # self.board.board[search.get_move()] = 1
+
+        # self.board.current_player = 1
+        # self.solve_move = None
+        # board_copy = self.board.copy()
+        # def start_solve():
+        #     res, m = alphabeta.solve(self.board)
+        #     self.solve_move = m
+        # t = threading.Thread(target=start_solve)
+        # t.start()
+        # t.join(5)
+        # self.board = board_copy
+        # if self.solve_move != None:
+        #     print(self.solve_move)
+        #     if self.solve_move != 'NoMove':
+        #         self.board.board[self.solve_move] = 1
+
+        search = TSearch(1)
+        m = search.threat_search(self.board, 1)
+        if m != None:
+            self.board.board[m] = 1
+
         self.showboard_cmd(args)
 
 def point_to_coord(point, boardsize):
