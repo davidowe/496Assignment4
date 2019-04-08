@@ -321,7 +321,6 @@ class GtpConnection():
         moves = self.board.get_empty_points()
         board_is_full = (len(moves) == 0)
         if board_is_full:
-            print("full")
             self.respond("pass")
             return
         move=None
@@ -336,7 +335,6 @@ class GtpConnection():
 
         if move == PASS:
             self.respond("pass")
-            print("passed")
             return
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
