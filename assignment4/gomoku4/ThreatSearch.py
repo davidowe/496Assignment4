@@ -191,6 +191,7 @@ class TSearch:
 
     #Takes a _play list and converts it into actual coordinates based on the line that was looked at
     def plays_to_coords(self, plays, i, j, xdir, ydir):
+
         coords = []
         for play in plays:
             coords.append((i + xdir * play, j + ydir * play))
@@ -264,6 +265,8 @@ class TSearch:
             # if threat_lst != None:
             #     threat_lst.append(new_threat_points)
             #Check if there's a winning threat sequence from this played position
+
+
             returned = self.threat_spot_check(new_board, player, play_coords[x][0], play_coords[x][1])
             #If there is a winning threat sequence return the coordinates of the play made
             if returned[0] != None:
@@ -314,6 +317,7 @@ class TSearch:
     def threat_search(self, board, player, recurse=True):
         #c contains the coordinates of any play that makes a winning threat sequence
         c = []
+   
         #Only append to c if there are coordinates
         def non_none(c, x):
             if x[0] != None:
@@ -340,6 +344,7 @@ class TSearch:
                 non_none(c, self.start_threat_sequence(board, 1, i, j, 0, 1, threat_lst))
                 non_none(c, self.start_threat_sequence(board, 1, i, j, -1, 1, threat_lst))
 
+       
         if len(c) > 0:
             for x in range(len(c)):
                 if c[x][1] == 1:

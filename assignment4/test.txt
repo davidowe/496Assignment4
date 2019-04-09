@@ -1,0 +1,27 @@
+timelimit 60
+play w b1
+play w e2
+play w f2
+play w e3
+play w c4
+play w d5
+play w a6
+play w d6
+play w e6
+play w a7
+play w f7
+play w g7
+
+play b d1
+play b e1
+play b f1
+play b b3
+play b f4
+play b b5
+play b f5
+play b b6
+play b c6
+play b f6
+play b c7
+play b d7
+play b e7

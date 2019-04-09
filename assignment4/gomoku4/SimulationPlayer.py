@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+#/usr/local/bin/python3
+# Set the path to your python3 above
+
+from gtp_connection import GtpConnection
 from board_util import GoBoardUtil, EMPTY
 from simple_board import SimpleGoBoard
 
@@ -26,7 +31,7 @@ class GomokuSimulationPlayer(object):
     """
     For each move do `n_simualtions_per_move` playouts,
     then select the one with best win-rate.
-    playout could be either random or rule_based (i.e., uses pre-defined patterns)
+    playout could be either random or rule_based (i.e., uses pre-defined patterns) 
     """
     def __init__(self, n_simualtions_per_move=10, playout_policy='random', board_size=7):
         assert(playout_policy in ['random', 'rule_based'])
@@ -40,14 +45,14 @@ class GomokuSimulationPlayer(object):
         self.name="Gomoku3"
         self.version = 3.0
         self.best_move=None
-
+    
     def set_playout_policy(self, playout_policy='random'):
         assert(playout_policy in ['random', 'rule_based'])
         self.playout_policy=playout_policy
 
     def _random_moves(self, board, color_to_play):
         return GoBoardUtil.generate_legal_moves_gomoku(board)
-
+    
     def policy_moves(self, board, color_to_play):
         if(self.playout_policy=='random'):
             return "Random", self._random_moves(board, color_to_play)
@@ -59,7 +64,7 @@ class GomokuSimulationPlayer(object):
                 return "Random", self._random_moves(board, color_to_play)
             movetype_id, moves=ret
             return self.pattern_list[movetype_id], moves
-
+    
     def _do_playout(self, board, color_to_play):
         res=game_result(board)
         simulation_moves=[]
@@ -71,7 +76,6 @@ class GomokuSimulationPlayer(object):
             res=game_result(board)
         for m in simulation_moves[::-1]:
             undo(board, m)
-        print("RES", res)
         if res == color_to_play:
             return 1.0
         elif res == 'draw':
@@ -110,3 +114,14 @@ class GomokuSimulationPlayer(object):
                 undo(board, move)
         assert(best_move is not None)
         return best_move
+
+def run():
+    """
+    start the gtp connection and wait for commands.
+    """
+    board = SimpleGoBoard(7)
+    con = GtpConnection(GomokuSimulationPlayer(), board)
+    con.start_connection()
+
+if __name__=='__main__':
+    run()
