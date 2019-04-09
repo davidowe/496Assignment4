@@ -100,6 +100,15 @@ class TSearch:
         into_four_4_reverse = [0, 0, player, player, player, op]
         into_four_4_reverse_play = [0, 1]
         into_four_4_reverse_cost = [[1], [0]]
+        into_broken_four_1 = [player, player, 0, 0, player]
+        into_broken_four_1_play = [2, 3]
+        into_broken_four_1_cost = [[3], [2]]
+        into_broken_four_2 = [player, 0, player, 0, player]
+        into_broken_four_2_play = [1, 3]
+        into_broken_four_2_cost = [[3], [1]]
+        into_broken_four_3 = [player, 0, 0, player, player]
+        into_broken_four_3_play = [1, 2]
+        into_broken_four_3_cost = [[2], [1]]
 
         self.patterns = {'four': four, 'four_reverse': four_reverse, 'straight_four': straight_four, 'broken_four_1': broken_four_1, 'broken_four_2': broken_four_2, 'broken_four_3': broken_four_3, 'open_three': open_three, \
                     'three': three, 'three_reverse': three_reverse, 'broken_three': broken_three, 'broken_three_reverse': broken_three_reverse, \
@@ -107,7 +116,8 @@ class TSearch:
                     'into_three_1': into_three_1, 'into_three_2': into_three_2, 'into_three_3': into_three_3, \
                     'into_three_1_reverse': into_three_1_reverse, 'into_three_2_reverse': into_three_2_reverse, 'into_three_3_reverse': into_three_3_reverse, \
                     'into_four_1': into_four_1, 'into_four_2': into_four_2, 'into_four_3': into_four_3, 'into_four_4': into_four_4,  \
-                    'into_four_2_reverse': into_four_2_reverse, 'into_four_3_reverse': into_four_3_reverse, 'into_four_4_reverse': into_four_4_reverse}
+                    'into_four_2_reverse': into_four_2_reverse, 'into_four_3_reverse': into_four_3_reverse, 'into_four_4_reverse': into_four_4_reverse, \
+                    'into_broken_four_1': into_broken_four_1, 'into_broken_four_2': into_broken_four_2, 'into_broken_four_3': into_broken_four_3}
 
         self.play = {'four': four_play, 'four_reverse': four_reverse_play, 'straight_four': straight_four_play, 'broken_four_1': broken_four_1_play, 'broken_four_2': broken_four_2_play, 'broken_four_3': broken_four_3_play, 'open_three': open_three_play, \
                     'three': three_play, 'three_reverse': three_reverse_play, 'broken_three': broken_three_play, 'broken_three_reverse': broken_three_reverse_play, \
@@ -115,13 +125,15 @@ class TSearch:
                     'into_three_1': into_three_1_play, 'into_three_2': into_three_2_play, 'into_three_3': into_three_3_play, \
                     'into_three_1_reverse': into_three_1_reverse_play, 'into_three_2_reverse': into_three_2_reverse_play, 'into_three_3_reverse': into_three_3_reverse_play, \
                     'into_four_1': into_four_1_play, 'into_four_2': into_four_2_play, 'into_four_3': into_four_3_play, 'into_four_4': into_four_4_play,  \
-                    'into_four_2_reverse': into_four_2_reverse_play, 'into_four_3_reverse': into_four_3_reverse_play, 'into_four_4_reverse': into_four_4_reverse_play}
+                    'into_four_2_reverse': into_four_2_reverse_play, 'into_four_3_reverse': into_four_3_reverse_play, 'into_four_4_reverse': into_four_4_reverse_play, \
+                    'into_broken_four_1': into_broken_four_1_play, 'into_broken_four_2': into_broken_four_2_play, 'into_broken_four_3': into_broken_four_3_play}
 
         self.cost = {'into_open_three_1': into_open_three_1_cost, 'into_open_three_2': into_open_three_2_cost, 'into_open_three_3': into_open_three_3_cost, \
                     'into_three_1': into_three_1_cost, 'into_three_2': into_three_2_cost, 'into_three_3': into_three_3_cost, \
                     'into_three_1_reverse': into_three_1_reverse_cost, 'into_three_2_reverse': into_three_2_reverse_cost, 'into_three_3_reverse': into_three_3_reverse_cost, \
                     'into_four_1': into_four_1_cost, 'into_four_2': into_four_2_cost, 'into_four_3': into_four_3_cost, 'into_four_4': into_four_4_cost,  \
-                    'into_four_2_reverse': into_four_2_reverse_cost, 'into_four_3_reverse': into_four_3_reverse_cost, 'into_four_4_reverse': into_four_4_reverse_cost}
+                    'into_four_2_reverse': into_four_2_reverse_cost, 'into_four_3_reverse': into_four_3_reverse_cost, 'into_four_4_reverse': into_four_4_reverse_cost, \
+                    'into_broken_four_1': into_broken_four_1_cost, 'into_broken_four_2': into_broken_four_2_cost, 'into_broken_four_3': into_broken_four_3_cost}
 
         # self.isImmediate = {'five': True, 'four': True, 'four_reverse': True, 'straight_four': True, 'broken_four_1': True, 'broken_four_2': True, \
         #                     'broken_four_3': True, 'open_three': True, 'three': True, 'three_reverse': True, 'broken_three': True, \
@@ -149,7 +161,7 @@ class TSearch:
                 'broken_three_reverse', 'into_open_three_1', 'into_open_three_2', 'into_open_three_3', 'into_three_1', \
                 'into_three_2', 'into_three_3', 'into_three_1_reverse', 'into_three_2_reverse', 'into_three_3_reverse', \
                 'into_four_1', 'into_four_2', 'into_four_3', 'into_four_4', 'into_four_2_reverse', 'into_four_3_reverse', \
-                'into_four_4_reverse']
+                'into_four_4_reverse', 'into_broken_four_1', 'into_broken_four_2', 'into_broken_four_3']
 
         op = opponent(player)
 
