@@ -28,10 +28,9 @@ class TSearch:
         #A pattern not having a cost means that it doesn't matter what the opponent plays the player will always win
 
         op = opponent(player)
-        #Attacker has won already
+        #Immediate threats, attacker wins immediately
         straight_four = [0, player, player, player, player, 0]
         straight_four_play = [0, 5]
-        #Immediate threats, attacker has won
         four = [op, player, player, player, player, 0]
         four_play = [5]
         four_reverse = [0, player, player, player, player, op]
@@ -42,6 +41,7 @@ class TSearch:
         broken_four_2_play = [2]
         broken_four_3 = [player, player, player, 0, player]
         broken_four_3_play = [3]
+        #Immediate threats, attacker wins next turn
         open_three = [0, 0, player, player, player, 0, 0]
         open_three_play = [1, 5]
         three = [op, 0, player, player, player, 0, 0]
@@ -205,30 +205,35 @@ class TSearch:
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i - y, j, 1, 0, name[0], threat_lst, threat_points)
                 if returned[0] != None:
-                    return returned, False
+                    return returned
             name = self.is_threat(board, player, i, j - y, 0, 1)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i, j - y, 0, 1, name[0], threat_lst, threat_points)
                 if returned[0] != None:
-                    return returned, False
+                    return returned
             name = self.is_threat(board, player, i - y, j - y, 1, 1)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i - y, j - y, 1, 1, name[0], threat_lst, threat_points)
                 if returned[0] != None:
-                    return returned, False
+                    return returned
             name = self.is_threat(board, player, i + y, j - y, -1, 1)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i + y, j - y, -1, 1, name[0], threat_lst, threat_points)
                 if returned[0] != None:
-                    return returned, False
-        return None, False
+                    return returned
+        return None, 3
 
     #Checks if there is a winning threat sequence based on a given threat
     #Returns the coordinates the player should play to win if a winning threat sequence is found
     def threat_sequence(self, board, player, i, j, xdir, ydir, name, threat_lst=None, threat_points=None, is_immediate=False):
         #Winning threat was found
         if name not in self.cost:
-            return self.plays_to_coords(self.play[name], i, j, xdir, ydir)[0], is_immediate
+            if is_immediate:
+                if name in ['straight_four', 'four', 'four_reverse', 'broken_four_1', 'broken_four_2', 'broken_four_3']:
+                    return self.plays_to_coords(self.play[name], i, j, xdir, ydir)[0], 1
+                else:
+                    return self.plays_to_coords(self.play[name], i, j, xdir, ydir)[0], 2
+            return self.plays_to_coords(self.play[name], i, j, xdir, ydir)[0], 3
         play_coords = self.plays_to_coords(self.play[name], i, j, xdir, ydir)
         op = opponent(player)
 
@@ -262,15 +267,15 @@ class TSearch:
             returned = self.threat_spot_check(new_board, player, play_coords[x][0], play_coords[x][1])
             #If there is a winning threat sequence return the coordinates of the play made
             if returned[0] != None:
-                return play_coords[x], False
-        return None, False
+                return play_coords[x], 3
+        return None, 3
 
     #Wrapper function to check if there's a threat
     def start_threat_sequence(self, board, player, i, j, xdir, ydir, threat_lst):
         name = self.is_threat(board, player, i, j, xdir, ydir)
         if len(name) > 0:
             return self.threat_sequence(board, player, i, j, xdir, ydir, name[0], is_immediate=True) #, threat_lst
-        return None, False
+        return None, 3
 
     def pop(self, board):
         self.set_color(board, 1, 1, 1)
@@ -337,7 +342,10 @@ class TSearch:
 
         if len(c) > 0:
             for x in range(len(c)):
-                if c[x][1] == True:
+                if c[x][1] == 1:
+                    return board.pt(c[x][0][0], c[x][0][1]), c[x][1]
+            for x in range(len(c)):
+                if c[x][1] == 2:
                     return board.pt(c[x][0][0], c[x][0][1]), c[x][1]
             return board.pt(c[0][0][0], c[x][0][1]), c[0][1]
 
