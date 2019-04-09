@@ -29,7 +29,6 @@ class TSearch:
 
         op = opponent(player)
         #Attacker has won already
-        five = [player, player, player, player, player]
         straight_four = [0, player, player, player, player, 0]
         straight_four_play = [0, 5]
         #Immediate threats, attacker has won
@@ -103,7 +102,7 @@ class TSearch:
         into_four_4_reverse_play = [0, 1]
         into_four_4_reverse_cost = [[1], [0]]
 
-        self.patterns = {'five': five, 'four': four, 'four_reverse': four_reverse, 'straight_four': straight_four, 'broken_four_1': broken_four_1, 'broken_four_2': broken_four_2, 'broken_four_3': broken_four_3, 'open_three': open_three, \
+        self.patterns = {'four': four, 'four_reverse': four_reverse, 'straight_four': straight_four, 'broken_four_1': broken_four_1, 'broken_four_2': broken_four_2, 'broken_four_3': broken_four_3, 'open_three': open_three, \
                     'three': three, 'three_reverse': three_reverse, 'broken_three': broken_three, 'broken_three_reverse': broken_three_reverse, \
                     'into_open_three_1': into_open_three_1, 'into_open_three_2': into_open_three_2, 'into_open_three_3': into_open_three_3, \
                     'into_three_1': into_three_1, 'into_three_2': into_three_2, 'into_three_3': into_three_3, \
@@ -145,7 +144,7 @@ class TSearch:
             return []
 
         #Possible threat names
-        names = ['five', 'four', 'four_reverse', 'straight_four', 'broken_four_1', 'broken_four_2', 'broken_four_3', 'open_three', 'three', 'three_reverse', 'broken_three', \
+        names = ['four', 'four_reverse', 'straight_four', 'broken_four_1', 'broken_four_2', 'broken_four_3', 'open_three', 'three', 'three_reverse', 'broken_three', \
                 'broken_three_reverse', 'into_open_three_1', 'into_open_three_2', 'into_open_three_3', 'into_three_1', \
                 'into_three_2', 'into_three_3', 'into_three_1_reverse', 'into_three_2_reverse', 'into_three_3_reverse', \
                 'into_four_1', 'into_four_2', 'into_four_3', 'into_four_4', 'into_four_2_reverse', 'into_four_3_reverse', \
@@ -338,6 +337,8 @@ class TSearch:
         if len(c) > 0:
             return board.pt(c[0][0], c[0][1])
 
+        print("LST", threat_lst)
+        print(recurse)
         if recurse:
             conflicting_threats = []
             checked_threats = []
