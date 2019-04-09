@@ -26,7 +26,6 @@ class TSearch:
         #And after the opponent countermoves: op, player, player, op, 0 or 0, op, player, player, op
         #According to the threat search we always play all possible opponent counter moves
         #A pattern not having a cost means that it doesn't matter what the opponent plays the player will always win
-
         op = opponent(player)
         #Immediate threats, attacker wins immediately
         straight_four = [0, player, player, player, player, 0]
@@ -131,6 +130,8 @@ class TSearch:
         #                     'into_three_2_reverse': False, 'into_three_3_reverse': False, 'into_four_1': False, 'into_four_2': False, 'into_four_3': False, \
         #                     'into_four_4': False, 'into_four_2_reverse': False, 'into_four_3_reverse': False, 'into_four_4_reverse': False}
 
+        self.threat_num = 0
+
     def get_color(self, board, i, j):
         return board.board[board.pt(i, j)]
 
@@ -204,21 +205,25 @@ class TSearch:
         for y in range(5):
             name = self.is_threat(board, player, i - y, j, 1, 0)
             if len(name) > 0:
+                self.threat_num += 1
                 returned = self.threat_sequence(board, player, i - y, j, 1, 0, name[0], threat_lst, threat_points)
                 if returned[0] != None:
                     return returned
             name = self.is_threat(board, player, i, j - y, 0, 1)
             if len(name) > 0:
+                self.threat_num += 1
                 returned = self.threat_sequence(board, player, i, j - y, 0, 1, name[0], threat_lst, threat_points)
                 if returned[0] != None:
                     return returned
             name = self.is_threat(board, player, i - y, j - y, 1, 1)
             if len(name) > 0:
+                self.threat_num += 1
                 returned = self.threat_sequence(board, player, i - y, j - y, 1, 1, name[0], threat_lst, threat_points)
                 if returned[0] != None:
                     return returned
             name = self.is_threat(board, player, i + y, j - y, -1, 1)
             if len(name) > 0:
+                self.threat_num += 1
                 returned = self.threat_sequence(board, player, i + y, j - y, -1, 1, name[0], threat_lst, threat_points)
                 if returned[0] != None:
                     return returned
@@ -277,6 +282,7 @@ class TSearch:
     def start_threat_sequence(self, board, player, i, j, xdir, ydir, threat_lst):
         name = self.is_threat(board, player, i, j, xdir, ydir)
         if len(name) > 0:
+            self.threat_num += 1
             return self.threat_sequence(board, player, i, j, xdir, ydir, name[0], is_immediate=True) #, threat_lst
         return None, 3
 
@@ -295,29 +301,30 @@ class TSearch:
     #print the names of all of the threats on the board; debugging function
     def print_threats(self, board, player):
         n = []
-        n += self.is_threat(board, 1, 0, 0, 1, 1)
-        n += self.is_threat(board, 1, board.size + 1, 0, -1, 1)
+        n += self.is_threat(board, player, 0, 0, 1, 1)
+        n += self.is_threat(board, player, board.size + 1, 0, -1, 1)
         for i in range(1, board.size + 1):
-            n += self.is_threat(board, 1, i, 0, 1, 1)
-            n += self.is_threat(board, 1, i, 0, 0, 1)
-            n += self.is_threat(board, 1, i, 0, -1, 1)
+            n += self.is_threat(board, player, i, 0, 1, 1)
+            n += self.is_threat(board, player, i, 0, 0, 1)
+            n += self.is_threat(board, player, i, 0, -1, 1)
         for j in range(1, board.size + 1):
-            n += self.is_threat(board, 1, 0, j, 1, 0)
-            n += self.is_threat(board, 1, board.size + 1, j, -1, 1)
-            n += self.is_threat(board, 1, 0, j, 1, 1)
+            n += self.is_threat(board, player, 0, j, 1, 0)
+            n += self.is_threat(board, player, board.size + 1, j, -1, 1)
+            n += self.is_threat(board, player, 0, j, 1, 1)
         for i in range(1, board.size + 1):
             for j in range(1, board.size + 1):
-                n += self.is_threat(board, 1, i, j, 1, 0)
-                n += self.is_threat(board, 1, i, j, 1, 1)
-                n += self.is_threat(board, 1, i, j, 0, 1)
-                n += self.is_threat(board, 1, i, j, -1, 1)
+                n += self.is_threat(board, player, i, j, 1, 0)
+                n += self.is_threat(board, player, i, j, 1, 1)
+                n += self.is_threat(board, player, i, j, 0, 1)
+                n += self.is_threat(board, player, i, j, -1, 1)
         print(n)
 
 
     def threat_search(self, board, player, recurse=True):
+        self.threat_num = 0
         #c contains the coordinates of any play that makes a winning threat sequence
         c = []
-   
+
         #Only append to c if there are coordinates
         def non_none(c, x):
             if x[0] != None:
@@ -327,24 +334,24 @@ class TSearch:
         threat_lst = []
 
         #Check all the possible lines of the board for threats
-        non_none(c, self.start_threat_sequence(board, 1, 0, 0, 1, 1, threat_lst))
-        non_none(c, self.start_threat_sequence(board, 1, board.size + 1, 0, -1, 1, threat_lst))
+        non_none(c, self.start_threat_sequence(board, player, 0, 0, 1, 1, threat_lst))
+        non_none(c, self.start_threat_sequence(board, player, board.size + 1, 0, -1, 1, threat_lst))
         for i in range(1, board.size + 1):
-            non_none(c, self.start_threat_sequence(board, 1, i, 0, 1, 1, threat_lst))
-            non_none(c, self.start_threat_sequence(board, 1, i, 0, 0, 1, threat_lst))
-            non_none(c, self.start_threat_sequence(board, 1, i, 0, -1, 1, threat_lst))
+            non_none(c, self.start_threat_sequence(board, player, i, 0, 1, 1, threat_lst))
+            non_none(c, self.start_threat_sequence(board, player, i, 0, 0, 1, threat_lst))
+            non_none(c, self.start_threat_sequence(board, player, i, 0, -1, 1, threat_lst))
         for j in range(1, board.size + 1):
-            non_none(c, self.start_threat_sequence(board, 1, 0, j, 1, 0, threat_lst))
-            non_none(c, self.start_threat_sequence(board, 1, 0, j, 1, 1, threat_lst))
-            non_none(c, self.start_threat_sequence(board, 1, board.size + 1, j, -1, 1, threat_lst))
+            non_none(c, self.start_threat_sequence(board, player, 0, j, 1, 0, threat_lst))
+            non_none(c, self.start_threat_sequence(board, player, 0, j, 1, 1, threat_lst))
+            non_none(c, self.start_threat_sequence(board, player, board.size + 1, j, -1, 1, threat_lst))
         for i in range(1, board.size + 1):
             for j in range(1, board.size + 1):
-                non_none(c, self.start_threat_sequence(board, 1, i, j, 1, 0, threat_lst))
-                non_none(c, self.start_threat_sequence(board, 1, i, j, 1, 1, threat_lst))
-                non_none(c, self.start_threat_sequence(board, 1, i, j, 0, 1, threat_lst))
-                non_none(c, self.start_threat_sequence(board, 1, i, j, -1, 1, threat_lst))
+                non_none(c, self.start_threat_sequence(board, player, i, j, 1, 0, threat_lst))
+                non_none(c, self.start_threat_sequence(board, player, i, j, 1, 1, threat_lst))
+                non_none(c, self.start_threat_sequence(board, player, i, j, 0, 1, threat_lst))
+                non_none(c, self.start_threat_sequence(board, player, i, j, -1, 1, threat_lst))
 
-       
+
         if len(c) > 0:
             for x in range(len(c)):
                 if c[x][1] == 1:
