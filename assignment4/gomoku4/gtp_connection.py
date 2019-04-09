@@ -508,9 +508,10 @@ class GtpConnection():
         #     if self.solve_move != 'NoMove':
         #         self.board.board[self.solve_move] = 1
 
-        self.board.board[self.board.pt(3, 2)] = 1
         search = TSearch(1)
-        m = search.threat_search(self.board, 1)
+        search.pop(self.board)
+        m, immediate = search.threat_search(self.board, 1)
+        print(m, immediate)
         if m != None:
             self.board.board[m] = 1
 

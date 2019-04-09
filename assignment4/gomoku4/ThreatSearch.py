@@ -204,84 +204,85 @@ class TSearch:
             name = self.is_threat(board, player, i - y, j, 1, 0)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i - y, j, 1, 0, name[0], threat_lst, threat_points)
-                if returned != None:
-                    return returned
+                if returned[0] != None:
+                    return returned, False
             name = self.is_threat(board, player, i, j - y, 0, 1)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i, j - y, 0, 1, name[0], threat_lst, threat_points)
-                if returned != None:
-                    return returned
+                if returned[0] != None:
+                    return returned, False
             name = self.is_threat(board, player, i - y, j - y, 1, 1)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i - y, j - y, 1, 1, name[0], threat_lst, threat_points)
-                if returned != None:
-                    return returned
+                if returned[0] != None:
+                    return returned, False
             name = self.is_threat(board, player, i + y, j - y, -1, 1)
             if len(name) > 0:
                 returned = self.threat_sequence(board, player, i + y, j - y, -1, 1, name[0], threat_lst, threat_points)
-                if returned != None:
-                    return returned
-        return None
+                if returned[0] != None:
+                    return returned, False
+        return None, False
 
     #Checks if there is a winning threat sequence based on a given threat
     #Returns the coordinates the player should play to win if a winning threat sequence is found
-    def threat_sequence(self, board, player, i, j, xdir, ydir, name, threat_lst=None, threat_points=None):
+    def threat_sequence(self, board, player, i, j, xdir, ydir, name, threat_lst=None, threat_points=None, is_immediate=False):
         #Winning threat was found
         if name not in self.cost:
-            return self.plays_to_coords(self.play[name], i, j, xdir, ydir)[0]
+            return self.plays_to_coords(self.play[name], i, j, xdir, ydir)[0], is_immediate
         play_coords = self.plays_to_coords(self.play[name], i, j, xdir, ydir)
         op = opponent(player)
 
         #For all possible plays of the player
         for x in range(len(play_coords)):
             new_board = board.copy() #TODO: can undo moves rather than copy a board to improve performance
-            if threat_lst != None:
-                if threat_points == None:
-                    new_threat_points = {'gain': [], 'cost': []}
-                else:
-                    new_threat_points = threat_points.copy()
-            else:
-                new_threat_points = None
+            # if threat_lst != None:
+            #     if threat_points == None:
+            #         new_threat_points = {'gain': [], 'cost': []}
+            #     else:
+            #         new_threat_points = threat_points.copy()
+            # else:
+            #     new_threat_points = None
             #Play the player's move
             self.set_color(new_board, play_coords[x][0], play_coords[x][1], player)
 
-            if threat_lst != None:
-                new_threat_points['gain'].append((play_coords[x][0], play_coords[x][1]))
+            # if threat_lst != None:
+            #     new_threat_points['gain'].append((play_coords[x][0], play_coords[x][1]))
 
             cost_coords = self.plays_to_coords(self.cost[name][x], i, j, xdir, ydir)
             #Play all the opponent's possible counter moves
-            new_threat_points['cost'].append([])
+            # new_threat_points['cost'].append([])
             for cost in cost_coords:
                 self.set_color(new_board, cost[0], cost[1], op)
-                if threat_lst != None:
-                    new_threat_points['cost'][-1].append((cost[0], cost[1]))
+                # if threat_lst != None:
+                #     new_threat_points['cost'][-1].append((cost[0], cost[1]))
 
-            if threat_lst != None:
-                threat_lst.append(new_threat_points)
+            # if threat_lst != None:
+            #     threat_lst.append(new_threat_points)
             #Check if there's a winning threat sequence from this played position
-            returned = self.threat_spot_check(new_board, player, play_coords[x][0], play_coords[x][1], threat_lst, new_threat_points)
+            returned = self.threat_spot_check(new_board, player, play_coords[x][0], play_coords[x][1])
             #If there is a winning threat sequence return the coordinates of the play made
-            if returned != None:
-                return play_coords[x]
-        return None
+            if returned[0] != None:
+                return play_coords[x], False
+        return None, False
 
     #Wrapper function to check if there's a threat
     def start_threat_sequence(self, board, player, i, j, xdir, ydir, threat_lst):
         name = self.is_threat(board, player, i, j, xdir, ydir)
         if len(name) > 0:
-            return self.threat_sequence(board, player, i, j, xdir, ydir, name[0], threat_lst)
+            return self.threat_sequence(board, player, i, j, xdir, ydir, name[0], is_immediate=True) #, threat_lst
+        return None, False
 
-    # def pop(self, board):
-    #     self.set_color(board, 1, 1, 1)
-    #     self.set_color(board, 1, 2, 1)
-    #     self.set_color(board, 1, 3, 1)
-    #     self.set_color(board, 2, 6, 1)
-    #     self.set_color(board, 3, 7, 1)
-    #     self.set_color(board, 3, 9, 2)
-    #     self.set_color(board, 6, 9, 1)
-    #     self.set_color(board, 6, 10, 2)
-    #     self.set_color(board, 7, 9, 1)
-    #     self.set_color(board, 10 , 9, 1)
+    def pop(self, board):
+        self.set_color(board, 1, 1, 1)
+        self.set_color(board, 1, 2, 1)
+        self.set_color(board, 1, 3, 1)
+        self.set_color(board, 2, 6, 1)
+        self.set_color(board, 3, 7, 1)
+        self.set_color(board, 3, 9, 2)
+        self.set_color(board, 6, 9, 1)
+        self.set_color(board, 6, 10, 2)
+        self.set_color(board, 7, 9, 1)
+        self.set_color(board, 10 , 9, 1)
 
     #print the names of all of the threats on the board; debugging function
     def print_threats(self, board, player):
@@ -310,7 +311,7 @@ class TSearch:
         c = []
         #Only append to c if there are coordinates
         def non_none(c, x):
-            if x != None:
+            if x[0] != None:
                 c.append(x)
 
         #List of threats to possibly combine
@@ -335,66 +336,70 @@ class TSearch:
                 non_none(c, self.start_threat_sequence(board, 1, i, j, -1, 1, threat_lst))
 
         if len(c) > 0:
-            return board.pt(c[0][0], c[0][1])
+            for x in range(len(c)):
+                if c[x][1] == True:
+                    return board.pt(c[x][0][0], c[x][0][1]), c[x][1]
+            return board.pt(c[0][0][0], c[x][0][1]), c[0][1]
 
-        print("LST", threat_lst)
-        print(recurse)
-        if recurse:
-            conflicting_threats = []
-            checked_threats = []
-            while True:
-                new_board = board.copy()
-                new_conflicting_threats = []
-                for threat in conflicting_threats:
-                    conflicting = False
-                    for x in range(len(threat['gain'])):
-                        if self.get_color(new_board, threat['gain'][x][0], threat['gain'][x][1]) != 0:
-                            conflicting = True
-                            break
-                        for y in threat['cost'][x]:
-                            if self.get_color(new_board, y[0], y[1]) != 0:
-                                conflicting = True
-                                break
-                        if conflicting:
-                            break
-                    if conflicting:
-                        if threat not in checked_threats:
-                            checked_threats.append(threat)
-                            new_conflicting_threats.append(threat)
-                    else:
-                        for x in range(len(threat['gain'])):
-                            self.set_color(new_board, threat['gain'][x][0], threat['gain'][x][1], player)
-                            for y in threat['cost'][x]:
-                                self.set_color(new_board, y[0], y[1], opponent(player))
 
-                for threat in threat_lst:
-                    conflicting = False
-                    for x in range(len(threat['gain'])):
-                        if self.get_color(new_board, threat['gain'][x][0], threat['gain'][x][1]) != 0:
-                            conflicting = True
-                            break
-                        for y in threat['cost'][x]:
-                            if self.get_color(new_board, y[0], y[1]) != 0:
-                                conflicting = True
-                                break
-                        if conflicting:
-                            break
-                    if conflicting:
-                        if threat not in checked_threats:
-                            checked_threats.append(threat)
-                            new_conflicting_threats.append(threat)
-                    else:
-                        for x in range(len(threat['gain'])):
-                            self.set_color(new_board, threat['gain'][x][0], threat['gain'][x][1], player)
-                            for y in threat['cost'][x]:
-                                self.set_color(new_board, y[0], y[1], opponent(player))
+        # print("LST", threat_lst)
+        # print(recurse)
+        # if recurse:
+        #     conflicting_threats = []
+        #     checked_threats = []
+        #     while True:
+        #         new_board = board.copy()
+        #         new_conflicting_threats = []
+        #         for threat in conflicting_threats:
+        #             conflicting = False
+        #             for x in range(len(threat['gain'])):
+        #                 if self.get_color(new_board, threat['gain'][x][0], threat['gain'][x][1]) != 0:
+        #                     conflicting = True
+        #                     break
+        #                 for y in threat['cost'][x]:
+        #                     if self.get_color(new_board, y[0], y[1]) != 0:
+        #                         conflicting = True
+        #                         break
+        #                 if conflicting:
+        #                     break
+        #             if conflicting:
+        #                 if threat not in checked_threats:
+        #                     checked_threats.append(threat)
+        #                     new_conflicting_threats.append(threat)
+        #             else:
+        #                 for x in range(len(threat['gain'])):
+        #                     self.set_color(new_board, threat['gain'][x][0], threat['gain'][x][1], player)
+        #                     for y in threat['cost'][x]:
+        #                         self.set_color(new_board, y[0], y[1], opponent(player))
+        #
+        #         for threat in threat_lst:
+        #             conflicting = False
+        #             for x in range(len(threat['gain'])):
+        #                 if self.get_color(new_board, threat['gain'][x][0], threat['gain'][x][1]) != 0:
+        #                     conflicting = True
+        #                     break
+        #                 for y in threat['cost'][x]:
+        #                     if self.get_color(new_board, y[0], y[1]) != 0:
+        #                         conflicting = True
+        #                         break
+        #                 if conflicting:
+        #                     break
+        #             if conflicting:
+        #                 if threat not in checked_threats:
+        #                     checked_threats.append(threat)
+        #                     new_conflicting_threats.append(threat)
+        #             else:
+        #                 for x in range(len(threat['gain'])):
+        #                     self.set_color(new_board, threat['gain'][x][0], threat['gain'][x][1], player)
+        #                     for y in threat['cost'][x]:
+        #                         self.set_color(new_board, y[0], y[1], opponent(player))
+        #
+        #         returned = self.threat_search(new_board, player, False)
+        #         if returned != None:
+        #             return returned
+        #
+        #         if len(new_conflicting_threats) == 0:
+        #             break
+        #         conflicting_threats = new_conflicting_threats
 
-                returned = self.threat_search(new_board, player, False)
-                if returned != None:
-                    return returned
-
-                if len(new_conflicting_threats) == 0:
-                    break
-                conflicting_threats = new_conflicting_threats
-
-        return None
+        return None, False
