@@ -101,23 +101,17 @@ class GomokuSimulationPlayer(object):
         wins = np.zeros(len(moves))
         visits = np.zeros(len(moves))
 
-        player_color = self.string_to_color(color_to_play)
-
-        print("here")
-
         #1.) Try TS
-        if self.TS == None:
-            self.TS = TSearch(player_color)
+               
+        self.TS = TSearch(color_to_play)
+        TS_res = self.TS.threat_search(board, color_to_play)
 
-        print("here9")
-        TS_res = self.TS.threat_search(board, player_color)
-        print(TS_res)
+        
+
+
         if TS_res != None:
-            print("here2")
-            print(board_util.GoBoardUtil.get_twoD_board(board))
-            return TS_res
-
-        print("here3")
+            self.best_move = TS_res
+            return self.best_move
 
         #2.) TS failed, try simulations
         while True:
@@ -144,11 +138,6 @@ class GomokuSimulationPlayer(object):
         assert(best_move is not None)
         return best_move
 
-    def string_to_color(self, string):
-        if string == 'b':
-            return 1
-        else:
-            return 2
 
 def run():
     """

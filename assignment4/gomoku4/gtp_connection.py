@@ -321,23 +321,24 @@ class GtpConnection():
         moves = self.board.get_empty_points()
         board_is_full = (len(moves) == 0)
         if board_is_full:
-            print("full")
             self.respond("pass")
             return
         move=None
+        
         try:
             signal.alarm(int(self.timelimit))
             self.sboard = self.board.copy()
             move = self.go_engine.get_move(self.board, color)
             self.board=self.sboard
             signal.alarm(0)
+
         except Exception as e:
-            move=self.go_engine.best_move
+            move = self.go_engine.best_move
 
         if move == PASS:
             self.respond("pass")
-            print("passed")
-            return
+            return 
+
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
         if self.board.is_legal_gomoku(move, color):
