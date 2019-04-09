@@ -510,12 +510,14 @@ class GtpConnection():
         m, immediate = search.threat_search(self.board, 1)
         print(m, immediate)
         search.print_threats(self.board, 1)
+        move = search.heuristic(self.board, 1)
+        self.board.board[move] = 1
         # if m != None:
         #     self.board.board[m] = 1
-        search = TSearch(2)
-        m, immediate = search.threat_search(self.board, 2)
-        print(m, immediate)
-        search.print_threats(self.board, 2)
+        # search = TSearch(2)
+        # m, immediate = search.threat_search(self.board, 2)
+        # print(m, immediate)
+        # search.print_threats(self.board, 2)
         self.showboard_cmd(args)
 
 def point_to_coord(point, boardsize):

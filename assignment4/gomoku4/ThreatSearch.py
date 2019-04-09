@@ -1,5 +1,5 @@
 import simple_board
-
+import random
 
 def opponent(player):
     if player == 1:
@@ -435,3 +435,88 @@ class TSearch:
         #         conflicting_threats = new_conflicting_threats
 
         return None, False
+
+    def heuristic(self, board, player):
+        new_board = []
+        for i in range(board.size):
+            new_board.append([0] * board.size)
+        def check_line(board, i, j, xdir, ydir):
+            sum = 0
+            player = self.get_color(board, i, j)
+            x = i + xdir
+            y = j + ydir
+            for z in range(4):
+                if x < 1 or x > board.size or y < 1 or y > board.size or (self.get_color(board, x, y) != 0 and self.get_color(board, x, y) != player):
+                    break
+                sum += 1
+                x += xdir
+                y += ydir
+
+            x = i - xdir
+            y = j - ydir
+            for z in range(4):
+                if x < 1 or x > board.size or y < 1 or y > board.size or (self.get_color(board, x, y) != 0 and self.get_color(board, x, y) != player):
+                    break
+                sum += 1
+                x -= xdir
+                y -= ydir
+
+            if sum >= 4:
+                return True
+            return False
+
+        def add_line(board, new_board, i, j, xdir, ydir):
+            x = i + xdir
+            y = j + ydir
+            for z in range(4):
+                if x < 1 or x > board.size or y < 1 or y > board.size or (self.get_color(board, x, y) != 0 and self.get_color(board, x, y) != player):
+                    break
+                if self.get_color(board, x, y) == 0:
+                    new_board[x-1][y-1] += 1
+                x += xdir
+                y += ydir
+
+            x = i - xdir
+            y = j - ydir
+            for z in range(4):
+                if x < 1 or x > board.size or y < 1 or y > board.size or (self.get_color(board, x, y) != 0 and self.get_color(board, x, y) != player):
+                    break
+                if self.get_color(board, x, y) == 0:
+                    new_board[x-1][y-1] += 1
+                x -= xdir
+                y -= ydir
+
+        all_empty = True
+        for i in range(1, board.size + 1):
+            for j in range(1, board.size + 1):
+                if self.get_color(board, i, j) != 0:
+                    all_empty = False
+                    if check_line(board, i, j, 1, 0):
+                        add_line(board, new_board, i, j, 1, 0)
+                    if check_line(board, i, j, 0, 1):
+                        add_line(board, new_board, i, j, 0, 1)
+                    if check_line(board, i, j, 1, 1):
+                        add_line(board, new_board, i, j, 1, 1)
+                    if check_line(board, i, j, -1, 1):
+                        add_line(board, new_board, i, j, -1, 1)
+
+        if all_empty:
+            return board.pt(4, 4)
+
+        maxScore = 0
+        maxMoves = []
+        for i in range(board.size):
+            for j in range(board.size):
+                score = new_board[i][j]
+                if score > maxScore:
+                    maxScore = score
+                    maxMoves = [board.pt(i + 1, j + 1)]
+                elif score == maxScore:
+                    maxMoves.append(board.pt(i + 1, j + 1))
+
+        for i in range(board.size):
+            for j in range(board.size):
+                print(new_board[i][j], end=' ')
+            print()
+
+        return random.choice(maxMoves)
