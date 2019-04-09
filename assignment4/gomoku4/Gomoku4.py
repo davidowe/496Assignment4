@@ -1,10 +1,8 @@
-#!/usr/bin/env python
-#/usr/local/bin/python3
-# Set the path to your python3 above
-
+#!/usr/bin/env python3
 from gtp_connection import GtpConnection
 from board_util import GoBoardUtil, EMPTY
 from simple_board import SimpleGoBoard
+from ThreatSearch import TSearch, opponent
 
 import random
 import numpy as np
@@ -33,7 +31,7 @@ class GomokuSimulationPlayer(object):
     then select the one with best win-rate.
     playout could be either random or rule_based (i.e., uses pre-defined patterns) 
     """
-    def __init__(self, n_simualtions_per_move=10, playout_policy='random', board_size=7):
+    def __init__(self, n_simualtions_per_move=10, playout_policy='rule_based', board_size=7):
         assert(playout_policy in ['random', 'rule_based'])
         self.n_simualtions_per_move=n_simualtions_per_move
         self.board_size=board_size
@@ -44,9 +42,14 @@ class GomokuSimulationPlayer(object):
 
         self.name="Gomoku3"
         self.version = 3.0
-        self.best_move=None
+        self.best_move = None
+        self.TS = None
+
+        
+
+        
     
-    def set_playout_policy(self, playout_policy='random'):
+    def set_playout_policy(self, playout_policy='rule_based'):
         assert(playout_policy in ['random', 'rule_based'])
         self.playout_policy=playout_policy
 
@@ -68,14 +71,17 @@ class GomokuSimulationPlayer(object):
     def _do_playout(self, board, color_to_play):
         res=game_result(board)
         simulation_moves=[]
+
         while(res is None):
             _ , candidate_moves = self.policy_moves(board, board.current_player)
             playout_move=random.choice(candidate_moves)
             play_move(board, playout_move, board.current_player)
             simulation_moves.append(playout_move)
             res=game_result(board)
+
         for m in simulation_moves[::-1]:
             undo(board, m)
+
         if res == color_to_play:
             return 1.0
         elif res == 'draw':
@@ -94,26 +100,59 @@ class GomokuSimulationPlayer(object):
         best_move=moves[0]
         wins = np.zeros(len(moves))
         visits = np.zeros(len(moves))
+
+        #1.) Try TS
+               
+        #search for us
+        self.TS = TSearch(color_to_play)
+        TS_res, imm = self.TS.threat_search(board, color_to_play)
+
+        if imm == True:
+            self.best_move = TS_res
+            return self.best_move
+
+        #search for other player
+        self.TS = TSearch(opponent(color_to_play))
+        TS_res2, imm2 = self.TS.threat_search(board, opponent(color_to_play))
+
+        if imm2 == True:
+            self.best_move = TS_res2
+            return self.best_move
+
+        if TS_res != None:
+            self.best_move = TS_res
+            return self.best_move
+
+        if TS_res2 != None:
+            self.best_move = TS_res2
+            return self.best_move
+ 
+
+        #2.) TS failed, try simulations
         while True:
             for i, move in enumerate(moves):
                 play_move(board, move, toplay)
-                res=game_result(board)
+                res = game_result(board)
                 if res == toplay:
                     undo(board, move)
                     #This move is a immediate win
-                    self.best_move=move
+                    self.best_move = move
                     return move
-                ret=self._do_playout(board, toplay)
+
+                ret = self._do_playout(board, toplay)
                 wins[i] += ret
                 visits[i] += 1
                 win_rate = wins[i] / visits[i]
+
                 if win_rate > best_result:
                     best_result=win_rate
                     best_move=move
                     self.best_move=best_move
                 undo(board, move)
+
         assert(best_move is not None)
         return best_move
+
 
 def run():
     """
