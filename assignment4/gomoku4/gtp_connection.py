@@ -426,6 +426,92 @@ class GtpConnection():
     def list_solve_point_cmd(self, args):
         self.respond(self.board.list_solve_point())
 
+    def make_move(self, board, depth):
+        print(depth)
+        if not self.search:
+            return
+        ts = TSearch(1)
+        move = ts.threat_search(board, 1)
+        if move != None:
+            ts.set_color(self.board, move[0], move[1], 1)
+            self.search = False
+            return
+        if depth == 0:
+            return
+        for point in board.get_empty_points():
+            board.board[point] = 1
+            for point1 in board.get_empty_points():
+                board.board[point1] = 2
+                self.make_move(board, depth - 1)
+                board.board[point1] = 0
+            board.board[point] = 0
+
+    def test(self, args):
+        # ts = TSearch(1)
+        # ts.threat_search(self.board, 1)
+        # ts.pop(self.board)
+
+        # self.search = True
+        # board = self.board.copy()
+        # self.make_move(board, 1)
+        # if self.search == True:
+        #     print("Failed")
+
+        # self.search.update_tree(self.board, 1)
+        # for x in self.search.scores:
+        #     score = self.search.scores[x]
+        #     if score[0] > 10:
+        #         print(score)
+        # self.search.print_tree(self.board, 1)
+        # self.search.make_move(self.board, 1)
+
+        # sim = SimulationPlayer.GomokuSimulationPlayer()
+        # maxMove = None
+        # maxScore = -1
+        # for move in self.board.get_empty_points():
+        #     won = 0
+        #     self.board.board[move] = 1
+        #     for i in range(50):
+        #         if sim._do_playout(self.board, 1) == 1:
+        #             won += 1
+        #     print('\n' + self.board2d())
+        #     print(won)
+        #     self.board.board[move] = 0
+        #     if won > maxScore:
+        #         maxScore = won
+        #         maxMove = move
+        # self.board.board[maxMove] = 1
+
+        # search = MCTS.NEW_MCTS(self.board, 1)
+        # for i in range(1000):
+        #     print(i)
+        #     search.update_tree()
+        # self.board.board[search.get_move()] = 1
+
+        # self.board.current_player = 1
+        # self.solve_move = None
+        # board_copy = self.board.copy()
+        # def start_solve():
+        #     res, m = alphabeta.solve(self.board)
+        #     self.solve_move = m
+        # t = threading.Thread(target=start_solve)
+        # t.start()
+        # t.join(5)
+        # self.board = board_copy
+        # if self.solve_move != None:
+        #     print(self.solve_move)
+        #     if self.solve_move != 'NoMove':
+        #         self.board.board[self.solve_move] = 1
+
+        search = TSearch(1)
+        search.pop(self.board)
+        m, immediate = search.threat_search(self.board, 1)
+        print(m, immediate)
+        if m != None:
+            self.board.board[m] = 1
+
+        self.showboard_cmd(args)
+
 def point_to_coord(point, boardsize):
     """
     Transform point given as board array index 

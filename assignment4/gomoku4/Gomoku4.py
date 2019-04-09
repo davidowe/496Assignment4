@@ -2,7 +2,7 @@
 from gtp_connection import GtpConnection
 from board_util import GoBoardUtil, EMPTY
 from simple_board import SimpleGoBoard
-from ThreatSearch import TSearch
+from ThreatSearch import TSearch, opponent
 
 import random
 import numpy as np
@@ -103,15 +103,30 @@ class GomokuSimulationPlayer(object):
 
         #1.) Try TS
                
+        #search for us
         self.TS = TSearch(color_to_play)
-        TS_res = self.TS.threat_search(board, color_to_play)
+        TS_res, imm = self.TS.threat_search(board, color_to_play)
 
-        
+        if imm == True:
+            self.best_move = TS_res
+            return self.best_move
 
+        #search for other player
+        self.TS = TSearch(opponent(color_to_play))
+        TS_res2, imm2 = self.TS.threat_search(board, opponent(color_to_play))
+
+        if imm2 == True:
+            self.best_move = TS_res2
+            return self.best_move
 
         if TS_res != None:
             self.best_move = TS_res
             return self.best_move
+
+        if TS_res2 != None:
+            self.best_move = TS_res2
+            return self.best_move
+ 
 
         #2.) TS failed, try simulations
         while True:
